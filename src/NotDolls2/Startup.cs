@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore;
+using NotDolls2.Models;
 
 namespace NotDolls2
 {
@@ -27,8 +29,21 @@ namespace NotDolls2
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            // copied from https://docs.efproject.net/en/latest/platforms/aspnetcore/new-db.html#register-your-context-with-dependency-injection
+            var connection = @"Server=(localdb)\mssqllocaldb;Database=GeeksRUs.AspNetCore.NewDb;Trusted_Connection=True;";
+            services.AddDbContext<NotDolls2Context>(options => options.UseSqlServer(connection));
+
             // Add framework services.
             services.AddMvc();
+
+            // add CORS
+            services.AddCors(options =>
+            {
+                options.AddPolicy("AllowDevelopmentEnvironment",
+                    builder => builder.WithOrigins("http://localhost:8080")
+                    .AllowAnyMethod()
+                    .AllowAnyHeader());
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
